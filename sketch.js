@@ -12,6 +12,9 @@ let maxTimes = 10;
 let audioContext;
 let audioReady = false;
 
+// Version
+const VERSION = 'v1.0.0';
+
 function setup() {
     createCanvas(windowWidth, windowHeight);
     loadTimes();
@@ -36,6 +39,12 @@ function draw() {
     textAlign(CENTER);
     textSize(titleSize);
     text('F1 REACTION TIME', width / 2, height * 0.1);
+    
+    // Draw version number in corner
+    fill(100);
+    textAlign(RIGHT, TOP);
+    textSize(min(width / 60, 12));
+    text(VERSION, width - 10, 10);
     
     // Draw lights
     drawLights();

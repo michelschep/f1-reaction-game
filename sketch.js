@@ -157,7 +157,6 @@ function drawLeaderboard() {
     text('BEST TIMES', width / 2, boardY);
     
     textSize(textSize18);
-    textAlign(LEFT);
     let startY = boardY + 40;
     let displayTimes = times.slice(0, 5);
     
@@ -166,12 +165,18 @@ function drawLeaderboard() {
         if (i === 0) medal = '🥇';
         else if (i === 1) medal = '🥈';
         else if (i === 2) medal = '🥉';
-        else medal = (i + 1) + '.';
+        else medal = (i + 1) + '. ';
         
         let timeInSeconds = (displayTimes[i] / 1000).toFixed(3);
         
+        // Draw medal/position (left-aligned)
         fill(200);
-        text(medal + '  ' + timeInSeconds + ' s', width / 2 - min(width / 8, 100), startY + i * 30);
+        textAlign(LEFT);
+        text(medal, width / 2 - min(width / 8, 100), startY + i * 30);
+        
+        // Draw time (right-aligned for consistent spacing)
+        textAlign(RIGHT);
+        text(timeInSeconds + ' s', width / 2 + min(width / 8, 100), startY + i * 30);
     }
     
     if (displayTimes.length === 0) {

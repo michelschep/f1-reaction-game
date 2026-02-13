@@ -8,9 +8,20 @@ let reactionTime = 0;
 let times = [];
 let maxTimes = 10;
 
+// Web Audio API
+let audioContext;
+let audioReady = false;
+
 function setup() {
     createCanvas(800, 600);
     loadTimes();
+}
+
+function initAudio() {
+    if (!audioReady) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        audioReady = true;
+    }
 }
 
 function draw() {
@@ -29,6 +40,7 @@ function draw() {
     if (gameState === 'lighting') {
         if (millis() - lightTimer > 1000) {
             lights[currentLight] = true;
+            playLightBeep();
             currentLight++;
             lightTimer = millis();
             
@@ -42,6 +54,7 @@ function draw() {
         if (millis() - greenTimer > randomDelay) {
             gameState = 'green';
             greenTimer = millis();
+            playGreenSound();
         }
     }
     
@@ -153,11 +166,14 @@ function keyPressed() {
 }
 
 function handleInput() {
+    initAudio(); // Initialize audio on first interaction
+    
     if (gameState === 'ready' || gameState === 'reacted' || gameState === 'false_start') {
         startRound();
     } else if (gameState === 'lighting' || gameState === 'waiting') {
         // False start
         gameState = 'false_start';
+        playFalseStartSound();
     } else if (gameState === 'green') {
         // Calculate reaction time
         reactionTime = millis() - greenTimer;
@@ -190,4 +206,63 @@ function loadTimes() {
     if (saved) {
         times = JSON.parse(saved);
     }
+}
+
+function playLightBeep() {
+    if (!audioReady) return;
+    
+    let osc = audioContext.createOscillator();
+    let gain = audioContext.createGain();
+    
+    osc.connect(gain);
+    gain.connect(audioContext.destination);
+    
+    osc.frequency.value = 400;
+    osc.type = 'sine';
+    
+    gain.gain.setValueAtTime(0.3, audioContext.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+    
+    osc.start(audioContext.currentTime);
+    osc.stop(audioContext.currentTime + 0.15);
+}
+
+function playGreenSound() {
+    if (!audioReady) return;
+    
+    let osc = audioContext.createOscillator();
+    let gain = audioContext.createGain();
+    
+    osc.connect(gain);
+    gain.connect(audioContext.destination);
+    
+    osc.frequency.setValueAtTime(200, audioContext.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(600, audioContext.currentTime + 0.2);
+    osc.type = 'square';
+    
+    gain.gain.setValueAtTime(0.4, audioContext.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+    
+    osc.start(audioContext.currentTime);
+    osc.stop(audioContext.currentTime + 0.3);
+}
+
+function playFalseStartSound() {
+    if (!audioReady) return;
+    
+    let osc = audioContext.createOscillator();
+    let gain = audioContext.createGain();
+    
+    osc.connect(gain);
+    gain.connect(audioContext.destination);
+    
+    osc.frequency.setValueAtTime(150, audioContext.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(80, audioContext.currentTime + 0.4);
+    osc.type = 'sawtooth';
+    
+    gain.gain.setValueAtTime(0.3, audioContext.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
+    
+    osc.start(audioContext.currentTime);
+    osc.stop(audioContext.currentTime + 0.4);
 }

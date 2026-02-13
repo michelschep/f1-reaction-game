@@ -13,7 +13,7 @@ let audioContext;
 let audioReady = false;
 
 // Version
-const VERSION = 'v1.0.4';
+const VERSION = 'v1.0.5';
 
 function setup() {
     createCanvas(windowWidth, windowHeight);
@@ -120,7 +120,7 @@ function drawStatus() {
     let smallSize = min(width / 40, 18);
     textSize(statusSize);
     textAlign(CENTER);
-    let statusY = height * 0.48;
+    let statusY = height * 0.43;
     
     if (gameState === 'ready') {
         text('TAP SCREEN or press SPACE/TAB to start', width / 2, statusY);
@@ -153,7 +153,7 @@ function drawLeaderboard() {
     let textSize14 = min(width / 50, 14);
     textSize(titleSize);
     textAlign(CENTER);
-    let boardY = height * 0.65;
+    let boardY = height * 0.6;
     text('TOP 10 BEST TIMES', width / 2, boardY);
     
     textSize(textSize14);

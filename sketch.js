@@ -134,7 +134,8 @@ function drawStatus() {
     } else if (gameState === 'reacted') {
         fill(0, 255, 0);
         textSize(titleSize);
-        text('Reaction Time: ' + reactionTime + ' ms', width / 2, statusY);
+        let timeInSeconds = (reactionTime / 1000).toFixed(3);
+        text('Reaction Time: ' + timeInSeconds + ' s', width / 2, statusY);
         textSize(smallSize);
         text('TAP or press SPACE/TAB to try again', width / 2, statusY + 30);
     } else if (gameState === 'false_start') {
@@ -148,16 +149,16 @@ function drawStatus() {
 
 function drawLeaderboard() {
     fill(255);
-    let titleSize = min(width / 30, 24);
-    let textSize16 = min(width / 45, 16);
+    let titleSize = min(width / 25, 28);
+    let textSize18 = min(width / 35, 20);
     textSize(titleSize);
     textAlign(CENTER);
     let boardY = height * 0.7;
     text('BEST TIMES', width / 2, boardY);
     
-    textSize(textSize16);
+    textSize(textSize18);
     textAlign(LEFT);
-    let startY = boardY + 30;
+    let startY = boardY + 40;
     let displayTimes = times.slice(0, 5);
     
     for (let i = 0; i < displayTimes.length; i++) {
@@ -167,8 +168,10 @@ function drawLeaderboard() {
         else if (i === 2) medal = '🥉';
         else medal = (i + 1) + '.';
         
+        let timeInSeconds = (displayTimes[i] / 1000).toFixed(3);
+        
         fill(200);
-        text(medal + '  ' + displayTimes[i] + ' ms', width / 2 - min(width / 8, 100), startY + i * 25);
+        text(medal + '  ' + timeInSeconds + ' s', width / 2 - min(width / 8, 100), startY + i * 30);
     }
     
     if (displayTimes.length === 0) {

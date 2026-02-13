@@ -5,7 +5,7 @@ let lightTimer = 0;
 let greenTimer = 0;
 let randomDelay = 0;
 let reactionTime = 0;
-let times = [];
+let times = []; // Array of {time: ms, date: timestamp}
 let maxTimes = 10;
 
 // Web Audio API
@@ -13,7 +13,7 @@ let audioContext;
 let audioReady = false;
 
 // Version
-const VERSION = 'v1.0.3';
+const VERSION = 'v1.0.4';
 
 function setup() {
     createCanvas(windowWidth, windowHeight);
@@ -150,15 +150,15 @@ function drawStatus() {
 function drawLeaderboard() {
     fill(255);
     let titleSize = min(width / 25, 28);
-    let textSize18 = min(width / 35, 20);
+    let textSize14 = min(width / 50, 14);
     textSize(titleSize);
     textAlign(CENTER);
     let boardY = height * 0.65;
-    text('BEST TIMES', width / 2, boardY);
+    text('TOP 10 BEST TIMES', width / 2, boardY);
     
-    textSize(textSize18);
-    let startY = boardY + 40;
-    let displayTimes = times.slice(0, 5);
+    textSize(textSize14);
+    let startY = boardY + 30;
+    let displayTimes = times.slice(0, 10);
     
     for (let i = 0; i < displayTimes.length; i++) {
         let medal = '';
@@ -167,16 +167,23 @@ function drawLeaderboard() {
         else if (i === 2) medal = '🥉';
         else medal = (i + 1) + '. ';
         
-        let timeInSeconds = (displayTimes[i] / 1000).toFixed(3);
+        let timeInSeconds = (displayTimes[i].time / 1000).toFixed(3);
+        let dateObj = new Date(displayTimes[i].date);
+        let dateStr = dateObj.toLocaleDateString() + ' ' + dateObj.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
         
         // Draw medal/position (left-aligned)
         fill(200);
         textAlign(LEFT);
-        text(medal, width / 2 - min(width / 8, 100), startY + i * 30);
+        text(medal, width / 2 - min(width / 3.5, 180), startY + i * 22);
         
-        // Draw time (right-aligned for consistent spacing)
+        // Draw time (center)
+        textAlign(CENTER);
+        text(timeInSeconds + ' s', width / 2, startY + i * 22);
+        
+        // Draw date/time (right-aligned)
+        fill(150);
         textAlign(RIGHT);
-        text(timeInSeconds + ' s', width / 2 + min(width / 8, 100), startY + i * 30);
+        text(dateStr, width / 2 + min(width / 3.5, 180), startY + i * 22);
     }
     
     if (displayTimes.length === 0) {
@@ -222,11 +229,14 @@ function handleInput() {
         gameState = 'reacted';
         
         // Check if it's a new record (best time)
-        let isRecord = times.length === 0 || reactionTime < times[0];
+        let isRecord = times.length === 0 || reactionTime < times[0].time;
         
-        // Save time
-        times.push(reactionTime);
-        times.sort((a, b) => a - b);
+        // Save time with timestamp
+        times.push({
+            time: reactionTime,
+            date: Date.now()
+        });
+        times.sort((a, b) => a.time - b.time);
         if (times.length > maxTimes) {
             times = times.slice(0, maxTimes);
         }
@@ -256,7 +266,13 @@ function saveTimes() {
 function loadTimes() {
     let saved = localStorage.getItem('f1ReactionTimes');
     if (saved) {
-        times = JSON.parse(saved);
+        let parsed = JSON.parse(saved);
+        // Handle old format (array of numbers) and convert to new format
+        if (parsed.length > 0 && typeof parsed[0] === 'number') {
+            times = parsed.map(t => ({ time: t, date: Date.now() }));
+        } else {
+            times = parsed;
+        }
     }
 }
 

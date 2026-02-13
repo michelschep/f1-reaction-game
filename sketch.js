@@ -13,7 +13,7 @@ let audioContext;
 let audioReady = false;
 
 // Version
-const VERSION = 'v1.0.5';
+const VERSION = 'v1.0.6';
 
 function setup() {
     createCanvas(windowWidth, windowHeight);
@@ -120,7 +120,7 @@ function drawStatus() {
     let smallSize = min(width / 40, 18);
     textSize(statusSize);
     textAlign(CENTER);
-    let statusY = height * 0.43;
+    let statusY = height * 0.40;
     
     if (gameState === 'ready') {
         text('TAP SCREEN or press SPACE/TAB to start', width / 2, statusY);
@@ -150,14 +150,14 @@ function drawStatus() {
 function drawLeaderboard() {
     fill(255);
     let titleSize = min(width / 25, 28);
-    let textSize14 = min(width / 50, 14);
+    let textSize17 = min(width / 40, 17);
     textSize(titleSize);
     textAlign(CENTER);
-    let boardY = height * 0.6;
+    let boardY = height * 0.57;
     text('TOP 10 BEST TIMES', width / 2, boardY);
     
-    textSize(textSize14);
-    let startY = boardY + 30;
+    textSize(textSize17);
+    let startY = boardY + 40;
     let displayTimes = times.slice(0, 10);
     
     for (let i = 0; i < displayTimes.length; i++) {
@@ -174,16 +174,16 @@ function drawLeaderboard() {
         // Draw medal/position (left-aligned)
         fill(200);
         textAlign(LEFT);
-        text(medal, width / 2 - min(width / 3.5, 180), startY + i * 22);
+        text(medal, width / 2 - min(width / 3.5, 180), startY + i * 24);
         
         // Draw time (center)
         textAlign(CENTER);
-        text(timeInSeconds + ' s', width / 2, startY + i * 22);
+        text(timeInSeconds + ' s', width / 2, startY + i * 24);
         
         // Draw date/time (right-aligned)
         fill(150);
         textAlign(RIGHT);
-        text(dateStr, width / 2 + min(width / 3.5, 180), startY + i * 22);
+        text(dateStr, width / 2 + min(width / 3.5, 180), startY + i * 24);
     }
     
     if (displayTimes.length === 0) {

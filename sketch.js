@@ -13,7 +13,7 @@ let audioContext;
 let audioReady = false;
 
 function setup() {
-    createCanvas(800, 600);
+    createCanvas(windowWidth, windowHeight);
     loadTimes();
 }
 
@@ -27,11 +27,15 @@ function initAudio() {
 function draw() {
     background(20);
     
+    // Calculate responsive dimensions
+    let titleSize = min(width / 20, 32);
+    let statusSize = min(width / 30, 20);
+    
     // Draw title
     fill(255);
     textAlign(CENTER);
-    textSize(32);
-    text('F1 REACTION TIME', width / 2, 60);
+    textSize(titleSize);
+    text('F1 REACTION TIME', width / 2, height * 0.1);
     
     // Draw lights
     drawLights();
@@ -65,12 +69,12 @@ function draw() {
 }
 
 function drawLights() {
-    let lightWidth = 80;
-    let lightHeight = 120;
-    let spacing = 20;
+    let lightWidth = min(width / 7, 80);
+    let lightHeight = lightWidth * 1.5;
+    let spacing = lightWidth * 0.25;
     let totalWidth = (lightWidth * 5) + (spacing * 4);
     let startX = (width - totalWidth) / 2;
-    let lightY = 150;
+    let lightY = height * 0.2;
     
     for (let i = 0; i < 5; i++) {
         let x = startX + (lightWidth + spacing) * i;
@@ -83,60 +87,68 @@ function drawLights() {
         
         // Draw light status
         noStroke();
+        let circleSize = lightWidth * 0.75;
         if (gameState === 'green') {
             // All lights green
             fill(0, 255, 0);
-            ellipse(x + lightWidth / 2, lightY + lightHeight / 2, 60, 60);
+            ellipse(x + lightWidth / 2, lightY + lightHeight / 2, circleSize, circleSize);
         } else if (lights[i]) {
             // Red light on
             fill(255, 0, 0);
-            ellipse(x + lightWidth / 2, lightY + lightHeight / 2, 60, 60);
+            ellipse(x + lightWidth / 2, lightY + lightHeight / 2, circleSize, circleSize);
         } else {
             // Light off
             fill(60);
-            ellipse(x + lightWidth / 2, lightY + lightHeight / 2, 60, 60);
+            ellipse(x + lightWidth / 2, lightY + lightHeight / 2, circleSize, circleSize);
         }
     }
 }
 
 function drawStatus() {
     fill(255);
-    textSize(20);
+    let statusSize = min(width / 30, 20);
+    let titleSize = min(width / 25, 28);
+    let smallSize = min(width / 40, 18);
+    textSize(statusSize);
     textAlign(CENTER);
+    let statusY = height * 0.55;
     
     if (gameState === 'ready') {
-        text('Press SPACE or TAB to start', width / 2, 330);
+        text('TAP SCREEN or press SPACE/TAB to start', width / 2, statusY);
     } else if (gameState === 'lighting') {
-        text('Get ready...', width / 2, 330);
+        text('Get ready...', width / 2, statusY);
     } else if (gameState === 'waiting') {
-        text('Wait for green...', width / 2, 330);
+        text('Wait for green...', width / 2, statusY);
     } else if (gameState === 'green') {
-        text('GO! PRESS SPACE OR TAB!', width / 2, 330);
+        text('GO! TAP NOW!', width / 2, statusY);
         fill(0, 255, 0);
     } else if (gameState === 'reacted') {
         fill(0, 255, 0);
-        textSize(28);
-        text('Reaction Time: ' + reactionTime + ' ms', width / 2, 330);
-        textSize(18);
-        text('Press SPACE or TAB to try again', width / 2, 360);
+        textSize(titleSize);
+        text('Reaction Time: ' + reactionTime + ' ms', width / 2, statusY);
+        textSize(smallSize);
+        text('TAP or press SPACE/TAB to try again', width / 2, statusY + 30);
     } else if (gameState === 'false_start') {
         fill(255, 0, 0);
-        textSize(28);
-        text('FALSE START!', width / 2, 330);
-        textSize(18);
-        text('You pressed too early. Press SPACE or TAB to try again', width / 2, 360);
+        textSize(titleSize);
+        text('FALSE START!', width / 2, statusY);
+        textSize(smallSize);
+        text('You pressed too early. TAP or press SPACE/TAB to try again', width / 2, statusY + 30);
     }
 }
 
 function drawLeaderboard() {
     fill(255);
-    textSize(24);
+    let titleSize = min(width / 30, 24);
+    let textSize16 = min(width / 45, 16);
+    textSize(titleSize);
     textAlign(CENTER);
-    text('BEST TIMES', width / 2, 420);
+    let boardY = height * 0.7;
+    text('BEST TIMES', width / 2, boardY);
     
-    textSize(16);
+    textSize(textSize16);
     textAlign(LEFT);
-    let startY = 450;
+    let startY = boardY + 30;
     let displayTimes = times.slice(0, 5);
     
     for (let i = 0; i < displayTimes.length; i++) {
@@ -147,7 +159,7 @@ function drawLeaderboard() {
         else medal = (i + 1) + '.';
         
         fill(200);
-        text(medal + '  ' + displayTimes[i] + ' ms', width / 2 - 100, startY + i * 25);
+        text(medal + '  ' + displayTimes[i] + ' ms', width / 2 - min(width / 8, 100), startY + i * 25);
     }
     
     if (displayTimes.length === 0) {
@@ -162,6 +174,20 @@ function keyPressed() {
         handleInput();
         return false; // Prevent default behavior for TAB
     }
+}
+
+function touchStarted() {
+    handleInput();
+    return false; // Prevent default
+}
+
+function mousePressed() {
+    handleInput();
+    return false; // Prevent default
+}
+
+function windowResized() {
+    resizeCanvas(windowWidth, windowHeight);
 }
 
 function handleInput() {

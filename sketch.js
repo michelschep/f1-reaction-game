@@ -54,7 +54,6 @@ function draw() {
         if (millis() - greenTimer > randomDelay) {
             gameState = 'green';
             greenTimer = millis();
-            playGreenSound();
         }
     }
     
@@ -179,6 +178,9 @@ function handleInput() {
         reactionTime = millis() - greenTimer;
         gameState = 'reacted';
         
+        // Check if it's a new record (best time)
+        let isRecord = times.length === 0 || reactionTime < times[0];
+        
         // Save time
         times.push(reactionTime);
         times.sort((a, b) => a - b);
@@ -186,6 +188,13 @@ function handleInput() {
             times = times.slice(0, maxTimes);
         }
         saveTimes();
+        
+        // Play sound based on result
+        if (isRecord) {
+            playRecordSound();
+        } else {
+            playSuccessSound();
+        }
     }
 }
 
@@ -225,6 +234,49 @@ function playLightBeep() {
     
     osc.start(audioContext.currentTime);
     osc.stop(audioContext.currentTime + 0.15);
+}
+
+function playSuccessSound() {
+    if (!audioReady) return;
+    
+    let osc = audioContext.createOscillator();
+    let gain = audioContext.createGain();
+    
+    osc.connect(gain);
+    gain.connect(audioContext.destination);
+    
+    osc.frequency.setValueAtTime(400, audioContext.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(600, audioContext.currentTime + 0.1);
+    osc.type = 'sine';
+    
+    gain.gain.setValueAtTime(0.2, audioContext.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+    
+    osc.start(audioContext.currentTime);
+    osc.stop(audioContext.currentTime + 0.15);
+}
+
+function playRecordSound() {
+    if (!audioReady) return;
+    
+    // Triple beep for record
+    [0, 0.1, 0.2].forEach((delay) => {
+        let osc = audioContext.createOscillator();
+        let gain = audioContext.createGain();
+        
+        osc.connect(gain);
+        gain.connect(audioContext.destination);
+        
+        osc.frequency.setValueAtTime(600, audioContext.currentTime + delay);
+        osc.frequency.exponentialRampToValueAtTime(800, audioContext.currentTime + delay + 0.1);
+        osc.type = 'sine';
+        
+        gain.gain.setValueAtTime(0.3, audioContext.currentTime + delay);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + delay + 0.12);
+        
+        osc.start(audioContext.currentTime + delay);
+        osc.stop(audioContext.currentTime + delay + 0.12);
+    });
 }
 
 function playGreenSound() {
